@@ -1,0 +1,5 @@
+# Ignore sensitive and environment files
+.env
+*.env
+infra/.env
+backend/.env
