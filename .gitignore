@@ -3,3 +3,8 @@
 *.env
 infra/.env
 backend/.env
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
