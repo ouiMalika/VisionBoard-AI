@@ -1,0 +1,38 @@
+<div class="login-page">
+  <div class="login-card">
+    <h1>{{ isRegister ? 'Create Account' : 'Welcome Back' }}</h1>
+    <p class="subtitle">{{ isRegister ? 'Sign up to start creating moodboards' : 'Log in to your moodboards' }}</p>
+
+    @if (error) {
+      <p class="error">{{ error }}</p>
+    }
+
+    <form (ngSubmit)="submit()">
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" type="text" [(ngModel)]="username" name="username" required />
+      </div>
+
+      @if (isRegister) {
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" [(ngModel)]="email" name="email" />
+        </div>
+      }
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" [(ngModel)]="password" name="password" required />
+      </div>
+
+      <button type="submit" class="submit-btn">
+        {{ isRegister ? 'Create Account' : 'Log In' }}
+      </button>
+    </form>
+
+    <p class="toggle">
+      {{ isRegister ? 'Already have an account?' : "Don't have an account?" }}
+      <a (click)="toggleMode()">{{ isRegister ? 'Log in' : 'Sign up' }}</a>
+    </p>
+  </div>
+</div>
