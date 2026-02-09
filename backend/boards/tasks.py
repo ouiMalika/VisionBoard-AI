@@ -1,6 +1,11 @@
 from celery import shared_task
-from worker.tasks import cluster_images as worker_cluster_images
 
-@shared_task
-def cluster_images(image_urls, n_clusters=5):
-    return worker_cluster_images(image_urls, n_clusters)
+@shared_task(name="tasks.cluster_images")
+def cluster_images(image_urls, n_clusters):
+    # TODO: your clustering logic here
+    return {
+        "0": {
+            "images": image_urls,
+            "tags": ["example"]
+        }
+    }
