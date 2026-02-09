@@ -19,12 +19,11 @@ class UploadView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        from storages.backends.s3 import S3Storage
-        storage = S3Storage()
+        from django.core.files.storage import default_storage
         urls = []
         for f in files:
-            filename = storage.save(f.name, f)
-            url = storage.url(filename)
+            filename = default_storage.save(f"uploads/{f.name}", f)
+            url = request.build_absolute_uri(f"/media/{filename}")
             urls.append(url)
 
         return Response({"image_urls": urls}, status=status.HTTP_200_OK)

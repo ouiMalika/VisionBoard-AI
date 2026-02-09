@@ -148,4 +148,11 @@ AWS_S3_OBJECT_PARAMETERS = {
 }
 
 AWS_QUERYSTRING_AUTH = False
-DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+if AWS_ACCESS_KEY_ID:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+else:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
