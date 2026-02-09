@@ -1,39 +1,57 @@
-from celery import shared_task
+import logging
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from celery.result import AsyncResult
-
-from celery import current_app
 from rest_framework import status
+from celery import current_app
+from celery.result import AsyncResult
 from .models import ClusterJob
-import json
 
-from storages.backends.s3 import S3Storage
+logger = logging.getLogger(__name__)
+
 
 class UploadView(APIView):
     def post(self, request):
         files = request.FILES.getlist("files")
-        urls = []
+        if not files:
+            return Response(
+                {"error": "No files provided."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        # Create an explicit S3Storage instance
+        from storages.backends.s3 import S3Storage
         storage = S3Storage()
-
+        urls = []
         for f in files:
             filename = storage.save(f.name, f)
             url = storage.url(filename)
             urls.append(url)
 
-        return Response({"image_urls": urls}, status=200)
+        return Response({"image_urls": urls}, status=status.HTTP_200_OK)
+
 
 class ClusterView(APIView):
     def post(self, request):
         urls = request.data.get("image_urls", [])
         n = request.data.get("n_clusters", 5)
 
-        # Send task to Celery worker by name
+        if not isinstance(urls, list) or len(urls) == 0:
+            return Response(
+                {"error": "image_urls must be a non-empty list."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not isinstance(n, int) or n < 1:
+            return Response(
+                {"error": "n_clusters must be a positive integer."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         task = current_app.send_task("tasks.cluster_images", args=[urls, n])
-        return Response({"job_id": task.id})
-    
+        ClusterJob.objects.create(job_id=task.id, status="PENDING")
+        return Response({"job_id": task.id}, status=status.HTTP_202_ACCEPTED)
+
+
 class JobStatusView(APIView):
     def get(self, request, job_id):
         result = AsyncResult(job_id, app=current_app)
@@ -43,19 +61,11 @@ class JobStatusView(APIView):
             try:
                 job.result = result.result
             except Exception:
+                logger.exception("Failed to read result for job %s", job_id)
                 job.result = str(result.result)
         job.save()
         return Response({
             "job_id": job.job_id,
             "status": job.status,
-            "result": job.result
+            "result": job.result,
         })
-
-class ClusterView(APIView):
-    def post(self, request):
-        urls = request.data.get("image_urls", [])
-        n = request.data.get("n_clusters", 5)
-
-        task = current_app.send_task("tasks.cluster_images", args=[urls, n])
-        ClusterJob.objects.create(job_id=task.id, status="PENDING")
-        return Response({"job_id": task.id})
