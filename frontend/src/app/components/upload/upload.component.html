@@ -1,0 +1,66 @@
+<div class="upload-page">
+  <h1 class="title">VisionBoard AI</h1>
+  <p class="subtitle">Upload images and let AI group them by visual similarity</p>
+
+  <div
+    class="drop-zone"
+    [class.dragging]="isDragging"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+    (click)="fileInput.click()"
+  >
+    <svg class="upload-icon" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M33.125 42.5V27.2187L28.25 32.0937L25.625 29.375L35 20L44.375 29.375L41.75
+        32.0937L36.875 27.2187V42.5H33.125ZM23.75 50C22.7187 50 21.8362 49.6331 21.1025
+        48.8994C20.3687 48.1656 20.0012 47.2825 20 46.25V40.625H23.75V46.25H46.25V40.625H50V46.25C50
+        47.2812 49.6331 48.1644 48.8994 48.8994C48.1656 49.6344 47.2825 50.0012 46.25 50H23.75Z"
+        fill="currentColor"
+      />
+    </svg>
+    <p class="drop-text">Drag & drop images here</p>
+    <p class="drop-subtext">or click to browse</p>
+    <input
+      #fileInput
+      type="file"
+      accept="image/*"
+      multiple
+      hidden
+      (change)="onFileSelected($event)"
+    />
+  </div>
+
+  @if (previewUrls.length > 0) {
+    <div class="preview-grid">
+      @for (url of previewUrls; track url) {
+        <img [src]="url" class="preview-thumb" alt="Preview" />
+      }
+    </div>
+  }
+
+  <div class="controls">
+    <label class="cluster-label">
+      Number of groups
+      <input
+        type="number"
+        class="cluster-input"
+        [value]="clusterCount"
+        min="1"
+        (input)="onClusterCountInput($any($event.target).value)"
+      />
+    </label>
+
+    <button
+      class="create-button"
+      (click)="onCreateBoard()"
+      [disabled]="uploadedCount === 0 || uploading"
+    >
+      @if (!uploading) {
+        <span>Create Board ({{ uploadedCount }} images)</span>
+      } @else {
+        <span>Uploading & Clustering...</span>
+      }
+    </button>
+  </div>
+</div>

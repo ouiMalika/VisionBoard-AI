@@ -1,0 +1,20 @@
+@if (showBoard) {
+  <app-cluster-board
+    [clusterResult]="clusterResult"
+    [clusterCount]="clusterCount"
+    (back)="onBackToUpload()"
+  />
+} @else {
+  <app-upload
+    [clusterCount]="clusterCount"
+    [uploadedCount]="files.length"
+    [uploading]="uploading"
+    (filesAdded)="onFilesAdded($event)"
+    (clusterCountChange)="onClusterCountChange($event)"
+    (createBoard)="onCreateBoard()"
+  />
+
+  @if (error) {
+    <p class="error-message">{{ error }}</p>
+  }
+}

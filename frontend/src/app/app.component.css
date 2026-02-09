@@ -1,0 +1,6 @@
+.error-message {
+  color: var(--destructive);
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
