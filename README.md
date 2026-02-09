@@ -50,19 +50,27 @@ CREATE DATABASE visionboard OWNER visionboard;
 
 ## Environment Variables
 
+Copy the example file and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `SECRET_KEY` | (insecure default) | Django secret key — **change this in production** |
+| `DEBUG` | `True` | Set to `False` in production |
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated list of allowed hosts |
 | `POSTGRES_DB` | `visionboard` | Database name |
 | `POSTGRES_USER` | `visionboard` | Database user |
 | `POSTGRES_PASSWORD` | `visionboard` | Database password |
-| `POSTGRES_HOST` | `postgres` | Database host — set to `localhost` for local dev |
-| `CELERY_BROKER_URL` | `redis://redis:6379/0` | Redis broker URL — set to `redis://localhost:6379/0` for local dev |
+| `POSTGRES_HOST` | `localhost` | Database host |
+| `CELERY_BROKER_URL` | `redis://localhost:6379/0` | Redis broker URL |
+| `CELERY_RESULT_BACKEND` | `redis://localhost:6379/0` | Redis result backend URL |
 | `AWS_ACCESS_KEY_ID` | — | Your AWS access key |
 | `AWS_SECRET_ACCESS_KEY` | — | Your AWS secret key |
 | `AWS_STORAGE_BUCKET_NAME` | `visionboard-ai` | S3 bucket name |
 | `AWS_S3_REGION_NAME` | `us-east-2` | S3 region |
-
-> **Note:** The defaults for `POSTGRES_HOST` and `CELERY_BROKER_URL` use Docker service names. When running locally, you must override them to use `localhost`.
 
 ## Running Locally
 
@@ -73,7 +81,6 @@ You need **two terminals** — one for the backend, one for the worker.
 ```bash
 cd backend
 pip install -r requirements.txt
-export POSTGRES_HOST=localhost
 python manage.py migrate
 python manage.py runserver
 ```
@@ -85,37 +92,22 @@ The API will be available at `http://127.0.0.1:8000/`.
 ```bash
 cd worker
 pip install -r requirements.txt
-export CELERY_BROKER_URL=redis://localhost:6379/0
 celery -A tasks worker --loglevel=info
 ```
 
 The worker will download the CLIP model on first run (~605 MB).
 
-## Running with Docker
+## Running with Docker Compose
 
-### Backend
-
-```bash
-cd backend
-docker build -t visionboard-backend .
-docker run -p 8000:8000 \
-  -e POSTGRES_HOST=<db-host> \
-  -e AWS_ACCESS_KEY_ID=<key> \
-  -e AWS_SECRET_ACCESS_KEY=<secret> \
-  visionboard-backend
-```
-
-### Worker
+The easiest way to run all services together:
 
 ```bash
-cd worker
-docker build -t visionboard-worker .
-docker run --gpus all \
-  -e CELERY_BROKER_URL=redis://<redis-host>:6379/0 \
-  visionboard-worker
+docker-compose up --build
 ```
 
-The worker Dockerfile uses `nvidia/cuda:12.1.1` for GPU acceleration. Pass `--gpus all` if you have an NVIDIA GPU.
+This starts PostgreSQL, Redis, the backend, and the worker. Set your AWS credentials in a `.env` file first (see `.env.example`).
+
+> **Note:** The worker container uses `nvidia/cuda:12.1.1` and requests GPU access. If you don't have an NVIDIA GPU, remove the `deploy.resources` section from `docker-compose.yml`.
 
 ## API Endpoints
 
@@ -173,5 +165,7 @@ VisionBoard-AI/
 │   ├── requirements.txt
 │   └── Dockerfile
 ├── frontend/                      # (not yet implemented)
-└── infra/
+├── infra/
+├── .env.example                   # Template for environment variables
+└── docker-compose.yml             # Run all services with one command
 ```

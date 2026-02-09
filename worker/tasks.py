@@ -1,11 +1,11 @@
 from celery import Celery
-import torch, requests, io
+import os, torch, requests, io
 import numpy as np
 from PIL import Image
 from sklearn.cluster import KMeans
 from transformers import CLIPProcessor, CLIPModel
 
-app = Celery("worker", broker="redis://redis:6379/0")
+app = Celery("worker", broker=os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0"))
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
