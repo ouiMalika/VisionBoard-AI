@@ -1,0 +1,16 @@
+<nav class="navbar">
+  <a routerLink="/" class="logo">VisionBoard AI</a>
+  <div class="nav-links">
+    @if (auth.isLoggedIn$ | async) {
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Create</a>
+      <a routerLink="/boards" routerLinkActive="active">My Boards</a>
+      <span class="username">{{ auth.getUsername() }}</span>
+      <a class="logout" (click)="logout()">Log out</a>
+    } @else {
+      <a routerLink="/login">Log in</a>
+    }
+  </div>
+</nav>
+<main>
+  <router-outlet />
+</main>

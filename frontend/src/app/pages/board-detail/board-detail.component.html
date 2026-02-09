@@ -1,0 +1,51 @@
+<div class="detail-page">
+  @if (loading) {
+    <p class="loading">Loading board...</p>
+  }
+
+  @if (board) {
+    <a routerLink="/boards" class="back-link">&larr; All Boards</a>
+
+    <!-- Board name -->
+    <div class="board-header">
+      @if (editingName) {
+        <input class="name-input" [(ngModel)]="editName" (keydown.enter)="saveName()" />
+        <button class="sm-btn" (click)="saveName()">Save</button>
+        <button class="sm-btn secondary" (click)="editingName = false">Cancel</button>
+      } @else {
+        <h1 (click)="editingName = true">{{ board.name }}</h1>
+        <span class="edit-hint">(click to rename)</span>
+      }
+    </div>
+
+    <!-- Tags -->
+    <div class="tags-section">
+      <div class="tags">
+        @for (tag of board.tags; track tag) {
+          <span class="tag">
+            {{ tag }}
+            <button class="tag-remove" (click)="removeTag(tag)">&times;</button>
+          </span>
+        }
+      </div>
+      <div class="add-tag">
+        <input
+          type="text"
+          [(ngModel)]="newTag"
+          placeholder="Add a tag..."
+          (keydown.enter)="addTag()"
+        />
+        <button class="sm-btn" (click)="addTag()">Add</button>
+      </div>
+    </div>
+
+    <!-- Image gallery -->
+    <div class="gallery">
+      @for (img of board.images; track img.id) {
+        <div class="gallery-item">
+          <img [src]="img.url" alt="" />
+        </div>
+      }
+    </div>
+  }
+</div>

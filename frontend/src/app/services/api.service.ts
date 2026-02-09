@@ -1,50 +1,63 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, timer, switchMap, takeWhile, map, last } from 'rxjs';
-import { ClusterResult } from '../models/image.model';
+import { Observable } from 'rxjs';
 
-interface UploadResponse {
-  image_urls: string[];
+export interface ImageData {
+  id: number;
+  url: string;
 }
 
-interface ClusterResponse {
-  job_id: string;
+export interface BoardData {
+  id: number;
+  name: string;
+  created_at: string;
+  images: ImageData[];
+  tags: string[];
 }
 
-interface JobStatusResponse {
+export interface JobStatus {
   job_id: string;
   status: string;
-  result: ClusterResult | null;
+  result: any;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = 'http://localhost:8000/api';
+  private base = 'http://localhost:8000/api';
 
   constructor(private http: HttpClient) {}
 
-  uploadImages(files: File[]): Observable<UploadResponse> {
-    const formData = new FormData();
-    for (const file of files) {
-      formData.append('files', file);
-    }
-    return this.http.post<UploadResponse>(`${this.baseUrl}/upload/`, formData);
+  upload(files: File[]): Observable<{ image_urls: string[] }> {
+    const fd = new FormData();
+    files.forEach((f) => fd.append('files', f));
+    return this.http.post<{ image_urls: string[] }>(`${this.base}/upload/`, fd);
   }
 
-  startClustering(imageUrls: string[], nClusters: number): Observable<ClusterResponse> {
-    return this.http.post<ClusterResponse>(`${this.baseUrl}/cluster/`, {
+  cluster(imageUrls: string[], nClusters: number, boardName: string): Observable<{ job_id: string }> {
+    return this.http.post<{ job_id: string }>(`${this.base}/cluster/`, {
       image_urls: imageUrls,
       n_clusters: nClusters,
+      board_name: boardName,
     });
   }
 
-  pollJobStatus(jobId: string): Observable<JobStatusResponse> {
-    return timer(0, 2000).pipe(
-      switchMap(() => this.http.get<JobStatusResponse>(`${this.baseUrl}/jobs/${jobId}/`)),
-      takeWhile((res) => res.status === 'PENDING' || res.status === 'STARTED', true),
-      last(),
-    );
+  jobStatus(jobId: string): Observable<JobStatus> {
+    return this.http.get<JobStatus>(`${this.base}/jobs/${jobId}/`);
+  }
+
+  getBoards(): Observable<BoardData[]> {
+    return this.http.get<BoardData[]>(`${this.base}/boards/`);
+  }
+
+  getBoard(id: number): Observable<BoardData> {
+    return this.http.get<BoardData>(`${this.base}/boards/${id}/`);
+  }
+
+  updateBoard(id: number, data: { name?: string; tags?: string[] }): Observable<any> {
+    return this.http.patch(`${this.base}/boards/${id}/`, data);
+  }
+
+  deleteBoard(id: number): Observable<any> {
+    return this.http.delete(`${this.base}/boards/${id}/`);
   }
 }

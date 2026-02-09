@@ -7,3 +7,9 @@ backend/.env
 # Python
 __pycache__/
 *.pyc
+*.pyo
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
