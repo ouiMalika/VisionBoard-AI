@@ -21,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-&d!he#iq7*zh^!kbrz$e95q0x4kj0)l*+=0(0(bz7)hpvs()ee"
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-&d!he#iq7*zh^!kbrz$e95q0x4kj0)l*+=0(0(bz7)hpvs()ee")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 
 # Application definition
@@ -83,7 +83,7 @@ DATABASES = {
         "NAME": os.environ.get("POSTGRES_DB", "visionboard"),
         "USER": os.environ.get("POSTGRES_USER", "visionboard"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "visionboard"),
-        "HOST": os.environ.get("POSTGRES_HOST", "postgres"),
+        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
         "PORT": "5432",
     }
 }
@@ -128,8 +128,8 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CELERY_BROKER_URL = "redis://redis:6379/0"
-CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
@@ -149,4 +149,11 @@ AWS_S3_OBJECT_PARAMETERS = {
 }
 
 AWS_QUERYSTRING_AUTH = False
-DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+if AWS_ACCESS_KEY_ID:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+else:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"

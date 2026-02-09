@@ -4,7 +4,7 @@
 infra/.env
 backend/.env
 
-# Python bytecode
+# Python
 __pycache__/
 *.pyc
 *.pyo

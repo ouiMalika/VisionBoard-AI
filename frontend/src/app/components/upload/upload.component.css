@@ -1,0 +1,131 @@
+.upload-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0 0 0.5rem;
+}
+
+.subtitle {
+  color: var(--muted-foreground);
+  margin: 0 0 2rem;
+}
+
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 220px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  padding: 2rem;
+}
+
+.drop-zone:hover,
+.drop-zone.dragging {
+  border-color: var(--primary);
+  background: var(--accent);
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--muted-foreground);
+  margin-bottom: 0.75rem;
+}
+
+.drop-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--foreground);
+  margin: 0 0 0.25rem;
+}
+
+.drop-subtext {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.preview-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid var(--border);
+}
+
+.controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.cluster-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.cluster-input {
+  width: 80px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--input-background);
+  font-size: 0.875rem;
+  color: var(--foreground);
+}
+
+.cluster-input:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.create-button {
+  flex: 1;
+  padding: 0.625rem 1.5rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.create-button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.create-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,37 +1,46 @@
+import logging
+
+from django.core.files.storage import default_storage
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
+
 from celery import current_app
 from celery.result import AsyncResult
 
 from .models import ClusterJob, Board, Image, Tag
 
+logger = logging.getLogger(__name__)
+
 
 class UploadView(APIView):
-    """Upload images to S3 and return their URLs."""
+    """Upload images to storage (S3 via django-storages) and return URLs."""
 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         files = request.FILES.getlist("files")
+
         if not files:
             return Response(
-                {"error": "No files provided"},
+                {"error": "No files provided."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        from storages.backends.s3 import S3Storage
-        storage = S3Storage()
         urls = []
         for f in files:
-            filename = storage.save(f.name, f)
-            url = storage.url(filename)
+            filename = default_storage.save(f"uploads/{f.name}", f)
+            url = default_storage.url(filename)
             urls.append(url)
 
-        return Response({"image_urls": urls}, status=status.HTTP_200_OK)
+        return Response(
+            {"image_urls": urls},
+            status=status.HTTP_200_OK,
+        )
 
 
 class ClusterView(APIView):
@@ -41,25 +50,34 @@ class ClusterView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        urls = request.data.get("image_urls", [])
+        urls = request.data.get("image_urls")
         n = request.data.get("n_clusters", 5)
         board_name = request.data.get("board_name", "Untitled Board")
 
-        if not urls:
+        if not isinstance(urls, list) or len(urls) == 0:
             return Response(
-                {"error": "No image URLs provided"},
+                {"error": "image_urls must be a non-empty list."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not isinstance(n, int) or n < 1:
+            return Response(
+                {"error": "n_clusters must be a positive integer."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         task = current_app.send_task(
-            "tasks.cluster_images", args=[urls, n]
+            "tasks.cluster_images",
+            args=[urls, n],
         )
+
         ClusterJob.objects.create(
             job_id=task.id,
             status="PENDING",
             board_name=board_name,
             owner=request.user,
         )
+
         return Response(
             {"job_id": task.id, "board_name": board_name},
             status=status.HTTP_202_ACCEPTED,
@@ -82,27 +100,31 @@ class JobStatusView(APIView):
             )
 
         result = AsyncResult(job_id, app=current_app)
-
         job.status = result.status
+
         if result.ready():
             try:
                 job.result = result.result
             except Exception:
+                logger.exception("Failed to read result for job %s", job_id)
                 job.result = str(result.result)
 
             if result.successful() and not job.boards_created:
                 self._create_boards(job, request.user)
 
         job.save()
+
         return Response({
             "job_id": job.job_id,
             "status": job.status,
             "result": job.result,
         })
 
+
     def _create_boards(self, job, user):
         """Turn cluster results into Board + Image + Tag objects."""
         clusters = job.result
+
         if not isinstance(clusters, dict) or "error" in clusters:
             return
 
@@ -115,8 +137,10 @@ class JobStatusView(APIView):
                 cluster_job=job,
                 owner=user,
             )
+
             for url in image_urls:
                 Image.objects.create(board=board, url=url)
+
             for tag_name in tags:
                 tag, _ = Tag.objects.get_or_create(name=tag_name.lower())
                 board.tags.add(tag)
@@ -136,6 +160,7 @@ class BoardListView(APIView):
             .prefetch_related("images", "tags")
             .order_by("-created_at")
         )
+
         data = []
         for board in boards:
             data.append({
@@ -148,6 +173,7 @@ class BoardListView(APIView):
                 ],
                 "tags": [tag.name for tag in board.tags.all()],
             })
+
         return Response(data)
 
 
@@ -160,7 +186,8 @@ class BoardDetailView(APIView):
     def _get_board(self, user, board_id):
         try:
             return Board.objects.prefetch_related("images", "tags").get(
-                id=board_id, owner=user
+                id=board_id,
+                owner=user,
             )
         except Board.DoesNotExist:
             return None
@@ -194,11 +221,13 @@ class BoardDetailView(APIView):
 
         if "name" in request.data:
             board.name = request.data["name"]
+
         if "tags" in request.data:
             board.tags.clear()
             for tag_name in request.data["tags"]:
                 tag, _ = Tag.objects.get_or_create(name=tag_name.lower())
                 board.tags.add(tag)
+
         board.save()
         return Response({"id": board.id, "name": board.name})
 
@@ -209,5 +238,6 @@ class BoardDetailView(APIView):
                 {"error": "Board not found"},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
         board.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

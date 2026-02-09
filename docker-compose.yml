@@ -44,14 +44,3 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
     depends_on:
-      - redis
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "4200:4200"
-    depends_on:
-      - backend
-
-volumes:
-  pgdata:

@@ -1,0 +1,25 @@
+<div class="board-page">
+  <div class="board-header">
+    <button class="back-button" (click)="onBack()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+      Back
+    </button>
+    <h1 class="board-title">Your Vision Board</h1>
+    <p class="board-subtitle">{{ clusterCount }} groups created</p>
+  </div>
+
+  <div class="clusters">
+    @for (cluster of clusterEntries; track cluster.id) {
+      <div class="cluster-section">
+        <h2 class="cluster-heading">Group {{ +cluster.id + 1 }}</h2>
+        <div class="cluster-grid">
+          @for (url of cluster.urls; track url) {
+            <img [src]="url" class="cluster-image" alt="Clustered image" />
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
