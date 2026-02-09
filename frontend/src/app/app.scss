@@ -1,0 +1,50 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  .logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #7c5cfc;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    a {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #666;
+      transition: color 0.2s;
+      cursor: pointer;
+
+      &:hover,
+      &.active {
+        color: #7c5cfc;
+      }
+    }
+
+    .username {
+      font-size: 0.85rem;
+      color: #999;
+    }
+
+    .logout {
+      color: #999;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+main {
+  min-height: calc(100vh - 60px);
+}

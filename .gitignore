@@ -3,3 +3,13 @@
 *.env
 infra/.env
 backend/.env
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Node / Angular
+node_modules/
+dist/
+.angular/

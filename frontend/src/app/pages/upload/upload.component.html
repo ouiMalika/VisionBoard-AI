@@ -1,0 +1,60 @@
+<div class="upload-page">
+  <h1>Create Moodboard</h1>
+  <p class="subtitle">Upload your images and let AI organize them into aesthetic moodboards</p>
+
+  <!-- Drop zone -->
+  <div
+    class="drop-zone"
+    [class.drag-over]="dragOver"
+    (drop)="onDrop($event)"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+  >
+    <div class="drop-zone-content">
+      <span class="drop-icon">+</span>
+      <p>Drag & drop images here</p>
+      <span class="or">or</span>
+      <label class="file-btn">
+        Browse files
+        <input type="file" multiple accept="image/*" (change)="onFilesSelected($event)" hidden />
+      </label>
+    </div>
+  </div>
+
+  <!-- Previews -->
+  @if (previews.length > 0) {
+    <div class="preview-grid">
+      @for (preview of previews; track preview; let i = $index) {
+        <div class="preview-card">
+          <img [src]="preview" alt="preview" />
+          <button class="remove-btn" (click)="removeFile(i)">&times;</button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Settings -->
+  @if (selectedFiles.length > 0) {
+    <div class="settings">
+      <div class="field">
+        <label for="boardName">Board name</label>
+        <input id="boardName" type="text" [(ngModel)]="boardName" placeholder="My Moodboard" />
+      </div>
+      <div class="field">
+        <label for="nClusters">Number of groups</label>
+        <input id="nClusters" type="number" [(ngModel)]="nClusters" min="2" max="20" />
+      </div>
+      <button class="generate-btn" (click)="generate()" [disabled]="uploading || clustering">
+        @if (uploading || clustering) {
+          <span class="spinner"></span>
+        }
+        {{ uploading ? 'Uploading...' : clustering ? 'Generating...' : 'Generate Moodboards' }}
+      </button>
+    </div>
+  }
+
+  <!-- Status -->
+  @if (statusMessage) {
+    <p class="status" [class.success]="statusMessage.includes('created')">{{ statusMessage }}</p>
+  }
+</div>
