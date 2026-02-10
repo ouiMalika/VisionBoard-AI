@@ -8,6 +8,11 @@ from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
+
+
 from celery import current_app
 from celery.result import AsyncResult
 
@@ -241,3 +246,23 @@ class BoardDetailView(APIView):
 
         board.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class AnonymousTokenView(APIView):
+    """
+    Issue a token for an anonymous demo user.
+    Safe for public demo deployments.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        user, _ = User.objects.get_or_create(
+            username="demo_user",
+            defaults={"is_active": True},
+        )
+
+        token, _ = Token.objects.get_or_create(user=user)
+
+        return Response(
+            {"token": token.key},
+            status=status.HTTP_200_OK,
+        )

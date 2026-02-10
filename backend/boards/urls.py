@@ -1,4 +1,7 @@
 from django.urls import path
+
+from .views import AnonymousTokenView
+
 from .views import (
     UploadView,
     ClusterView,
@@ -18,4 +21,6 @@ urlpatterns = [
     path("jobs/<str:job_id>/", JobStatusView.as_view()),
     path("boards/", BoardListView.as_view()),
     path("boards/<int:board_id>/", BoardDetailView.as_view()),
+
+    path("auth/anonymous/", AnonymousTokenView.as_view()),
 ]

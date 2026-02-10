@@ -1,56 +1,35 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-
-interface AuthResponse {
-  token: string;
-  user_id: number;
-  username: string;
-}
+import { Observable, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private base = 'http://localhost:8000/api/auth';
-  private tokenKey = 'vb_token';
-  private usernameKey = 'vb_username';
-
-  isLoggedIn$ = new BehaviorSubject<boolean>(this.hasToken());
+  private tokenKey = 'auth_token';
 
   constructor(private http: HttpClient) {}
-
-  register(username: string, password: string, email: string): Observable<AuthResponse> {
-    return this.http
-      .post<AuthResponse>(`${this.base}/register/`, { username, password, email })
-      .pipe(tap((res) => this.setSession(res)));
-  }
-
-  login(username: string, password: string): Observable<AuthResponse> {
-    return this.http
-      .post<AuthResponse>(`${this.base}/login/`, { username, password })
-      .pipe(tap((res) => this.setSession(res)));
-  }
-
-  logout() {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.usernameKey);
-    this.isLoggedIn$.next(false);
-  }
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
-  getUsername(): string | null {
-    return localStorage.getItem(this.usernameKey);
+  login(username: string, password: string): Observable<{ token: string }> {
+    return this.http
+      .post<{ token: string }>(`${this.base}/login/`, { username, password })
+      .pipe(
+        tap(res => localStorage.setItem(this.tokenKey, res.token))
+      );
   }
 
-  private hasToken(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
+  register(username: string, password: string, email: string): Observable<any> {
+    return this.http.post(`${this.base}/register/`, {
+      username,
+      password,
+      email,
+    });
   }
 
-  private setSession(res: AuthResponse) {
-    localStorage.setItem(this.tokenKey, res.token);
-    localStorage.setItem(this.usernameKey, res.username);
-    this.isLoggedIn$.next(true);
+  logout(): void {
+    localStorage.removeItem(this.tokenKey);
   }
 }
