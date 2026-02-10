@@ -30,8 +30,7 @@ export class ApiService {
   }
 
   async ensureAnonymousToken(): Promise<void> {
-    if (this.token) return;
-
+    // Always fetch a fresh token — avoids stale tokens after DB rebuilds
     const res = await firstValueFrom(
       this.http.post<{ token: string }>(`${this.authBase}/anonymous/`, {})
     );
