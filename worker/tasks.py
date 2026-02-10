@@ -1,3 +1,4 @@
+import os
 from celery import Celery
 import torch
 import requests

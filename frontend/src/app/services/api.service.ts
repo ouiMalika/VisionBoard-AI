@@ -64,20 +64,20 @@ export class ApiService {
     );
   }
 
-  cluster(imageUrls: string[], boardName: string): Observable<{ job_id: string }> {
+  cluster(imageUrls: string[], boardName: string, nClusters: number): Observable<{ job_id: string }> {
     return this.http.post<{ job_id: string }>(
       `${this.base}/cluster/`,
       {
         image_urls: imageUrls,
-        n_clusters: 3,
+        n_clusters: nClusters,
         board_name: boardName,
       },
       this.authHeaders()
     );
   }
 
-  jobStatus(jobId: string): Observable<{ status: string }> {
-    return this.http.get<{ status: string }>(
+  jobStatus(jobId: string): Observable<{ status: string; result?: any }> {
+    return this.http.get<{ status: string; result?: any }>(
       `${this.base}/jobs/${jobId}/`,
       this.authHeaders()
     );
