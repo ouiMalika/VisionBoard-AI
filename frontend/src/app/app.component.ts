@@ -98,8 +98,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.pollTimer = setInterval(async () => {
       try {
         const job = await firstValueFrom(this.api.jobStatus(jobId));
+        console.log('Poll:', job.status, job.result ? 'has result' : 'no result');
 
         if (job.status === 'SUCCESS' && job.result) {
+          console.log('Transitioning to board view');
           this.clearPoll();
           this.zone.run(() => {
             this.uploading = false;
