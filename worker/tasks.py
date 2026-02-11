@@ -8,7 +8,11 @@ from PIL import Image
 from sklearn.cluster import KMeans
 from transformers import CLIPProcessor, CLIPModel
 
-app = Celery("worker", broker=os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0"))
+app = Celery(
+    "worker",
+    broker=os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0"),
+    backend=os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0"),
+)
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://backend:8000")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
