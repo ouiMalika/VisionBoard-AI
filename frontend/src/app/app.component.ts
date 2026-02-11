@@ -5,6 +5,7 @@ import { ClusterBoardComponent } from './components/cluster-board/cluster-board.
 import { ApiService } from './services/api.service';
 import { firstValueFrom } from 'rxjs';
 import { UploadedImage, ClusterResult } from './models/image.model';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -26,6 +27,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private api: ApiService, private cdr: ChangeDetectorRef) {}
 
   async ngOnInit(): Promise<void> {
+    if (environment.demoMode) return;
     try {
       await this.api.ensureAnonymousToken();
     } catch {
@@ -67,6 +69,11 @@ export class AppComponent implements OnInit, OnDestroy {
     this.error = '';
     this.uploading = true;
 
+    if (environment.demoMode) {
+      this.runDemoClustering();
+      return;
+    }
+
     try {
       // 1. Upload files to backend
       const files = this.images.map(img => img.file);
@@ -83,6 +90,34 @@ export class AppComponent implements OnInit, OnDestroy {
       this.error = 'Upload failed. Is the backend running?';
       this.uploading = false;
     }
+  }
+
+  private runDemoClustering(): void {
+    const demoTags = [
+      ['minimalist', 'modern', 'bright and airy'],
+      ['warm tones', 'cozy', 'organic'],
+      ['bold', 'colorful', 'geometric'],
+      ['vintage', 'earthy', 'rustic'],
+      ['elegant', 'fashion', 'portrait'],
+    ];
+
+    // Distribute images across clusters
+    const k = Math.min(this.clusterCount, this.images.length);
+    const result: ClusterResult = {};
+    for (let i = 0; i < k; i++) {
+      result[i] = { images: [], tags: demoTags[i % demoTags.length] };
+    }
+    this.images.forEach((img, idx) => {
+      result[idx % k].images.push(img.url);
+    });
+
+    // Simulate processing delay
+    setTimeout(() => {
+      this.uploading = false;
+      this.clusterResult = result;
+      this.showBoard = true;
+      this.cdr.detectChanges();
+    }, 1500);
   }
 
   onBackToUpload(): void {
