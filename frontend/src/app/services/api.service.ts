@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ImageData {
   id: number;
@@ -17,8 +18,8 @@ export interface BoardData {
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private base = 'http://localhost:8000/api';
-  private authBase = 'http://localhost:8000/api/auth';
+  private base = environment.apiUrl;
+  private authBase = `${environment.apiUrl}/auth`;
   private tokenKey = 'auth_token';
 
   constructor(private http: HttpClient) {}
