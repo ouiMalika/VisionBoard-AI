@@ -106,7 +106,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
           const result: ClusterResult = {};
           for (const [id, data] of Object.entries<any>(job.result)) {
-            result[id] = data.images || data;
+            result[id] = {
+              images: data.images || [],
+              tags: data.tags || [],
+            };
           }
 
           this.clusterResult = result;

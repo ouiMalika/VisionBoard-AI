@@ -14,11 +14,11 @@ export class ClusterBoardComponent implements OnInit {
   @Input() clusterCount = 0;
   @Output() back = new EventEmitter<void>();
 
-  clusterEntries: { id: string; urls: string[] }[] = [];
+  clusterEntries: { id: string; urls: string[]; tags: string[] }[] = [];
 
   ngOnInit(): void {
     this.clusterEntries = Object.entries(this.clusterResult).map(
-      ([id, urls]) => ({ id, urls })
+      ([id, group]) => ({ id, urls: group.images, tags: group.tags })
     );
   }
 

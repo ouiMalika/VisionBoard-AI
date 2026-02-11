@@ -7,13 +7,20 @@
       Back
     </button>
     <h1 class="board-title">Your Vision Board</h1>
-    <p class="board-subtitle">{{ clusterCount }} groups created</p>
+    <p class="board-subtitle">{{ clusterEntries.length }} groups created</p>
   </div>
 
   <div class="clusters">
     @for (cluster of clusterEntries; track cluster.id) {
       <div class="cluster-section">
         <h2 class="cluster-heading">Group {{ +cluster.id + 1 }}</h2>
+        @if (cluster.tags.length) {
+          <div class="cluster-tags">
+            @for (tag of cluster.tags; track tag) {
+              <span class="tag">#{{ tag }}</span>
+            }
+          </div>
+        }
         <div class="cluster-grid">
           @for (url of cluster.urls; track url) {
             <img [src]="url" class="cluster-image" alt="Clustered image" />
