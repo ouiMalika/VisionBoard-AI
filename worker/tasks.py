@@ -9,7 +9,13 @@ from sklearn.cluster import KMeans
 from transformers import CLIPProcessor, CLIPModel
 
 app = Celery("worker", broker=os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0"))
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://backend:8000")
 device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+def _resolve_url(url):
+    """Rewrite localhost URLs to the backend service name for Docker networking."""
+    return url.replace("http://localhost:8000", BACKEND_URL).replace("http://127.0.0.1:8000", BACKEND_URL)
 
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
@@ -29,7 +35,7 @@ AESTHETIC_LABELS = [
 
 def _get_image_embedding(url):
     """Download an image and return its CLIP embedding."""
-    resp = requests.get(url, timeout=15)
+    resp = requests.get(_resolve_url(url), timeout=15)
     resp.raise_for_status()
     img = Image.open(io.BytesIO(resp.content)).convert("RGB")
     inputs = processor(images=img, return_tensors="pt").to(device)
@@ -49,7 +55,7 @@ def _tag_cluster(image_urls, top_k=4):
     images = []
     for url in sample:
         try:
-            resp = requests.get(url, timeout=15)
+            resp = requests.get(_resolve_url(url), timeout=15)
             resp.raise_for_status()
             images.append(
                 Image.open(io.BytesIO(resp.content)).convert("RGB")
