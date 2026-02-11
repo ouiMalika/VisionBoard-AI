@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UploadComponent } from './components/upload/upload.component';
 import { ClusterBoardComponent } from './components/cluster-board/cluster-board.component';
@@ -23,7 +23,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private pollTimer: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private api: ApiService, private zone: NgZone) {}
+  constructor(private api: ApiService, private cdr: ChangeDetectorRef) {}
 
   async ngOnInit(): Promise<void> {
     try {
@@ -101,33 +101,29 @@ export class AppComponent implements OnInit, OnDestroy {
         console.log('Poll:', job.status, job.result ? 'has result' : 'no result');
 
         if (job.status === 'SUCCESS' && job.result) {
-          console.log('Transitioning to board view');
           this.clearPoll();
-          this.zone.run(() => {
-            this.uploading = false;
+          this.uploading = false;
 
-            // Convert backend result {clusterId: {images:[], tags:[]}} to ClusterResult {clusterId: string[]}
-            const result: ClusterResult = {};
-            for (const [id, data] of Object.entries<any>(job.result)) {
-              result[id] = data.images || data;
-            }
+          const result: ClusterResult = {};
+          for (const [id, data] of Object.entries<any>(job.result)) {
+            result[id] = data.images || data;
+          }
 
-            this.clusterResult = result;
-            this.showBoard = true;
-          });
+          this.clusterResult = result;
+          this.showBoard = true;
+          console.log('showBoard set to true, detecting changes');
+          this.cdr.detectChanges();
         } else if (job.status === 'FAILURE') {
           this.clearPoll();
-          this.zone.run(() => {
-            this.uploading = false;
-            this.error = 'Clustering failed. Please try again.';
-          });
+          this.uploading = false;
+          this.error = 'Clustering failed. Please try again.';
+          this.cdr.detectChanges();
         }
       } catch {
         this.clearPoll();
-        this.zone.run(() => {
-          this.uploading = false;
-          this.error = 'Lost connection while waiting for results.';
-        });
+        this.uploading = false;
+        this.error = 'Lost connection while waiting for results.';
+        this.cdr.detectChanges();
       }
     }, 2000);
   }
