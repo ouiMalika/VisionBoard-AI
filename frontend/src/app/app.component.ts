@@ -98,6 +98,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.pollTimer = setInterval(async () => {
       try {
         const job = await firstValueFrom(this.api.jobStatus(jobId));
+        console.log('Poll response:', JSON.stringify(job));
 
         if (job.status === 'SUCCESS' && job.result) {
           this.clearPoll();
