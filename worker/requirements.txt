@@ -3,8 +3,10 @@ redis==5.0.1
 numpy==1.26.4
 scikit-learn==1.5.2
 sentence-transformers==3.0.1
+transformers
 Pillow==10.3.0
-opencv-python==4.10.0.84
+opencv-python-headless==4.10.0.84
 colorthief==0.2.1
+requests
 torch==2.6.0
 torchvision==0.21.0

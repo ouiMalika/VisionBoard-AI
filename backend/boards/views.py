@@ -40,6 +40,9 @@ class UploadView(APIView):
         for f in files:
             filename = default_storage.save(f"uploads/{f.name}", f)
             url = default_storage.url(filename)
+            # Make relative URLs absolute so the worker container can fetch them
+            if url.startswith("/"):
+                url = request.build_absolute_uri(url)
             urls.append(url)
 
         return Response(

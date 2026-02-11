@@ -5,6 +5,11 @@ export interface UploadedImage {
   cluster?: number;
 }
 
+export interface ClusterGroup {
+  images: string[];
+  tags: string[];
+}
+
 export interface ClusterResult {
-  [clusterId: string]: string[];
+  [clusterId: string]: ClusterGroup;
 }

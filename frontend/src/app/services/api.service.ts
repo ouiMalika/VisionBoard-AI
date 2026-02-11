@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ImageData {
   id: number;
@@ -17,8 +18,8 @@ export interface BoardData {
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private base = 'http://localhost:8000/api';
-  private authBase = 'http://localhost:8000/api/auth';
+  private base = environment.apiUrl;
+  private authBase = `${environment.apiUrl}/auth`;
   private tokenKey = 'auth_token';
 
   constructor(private http: HttpClient) {}
@@ -30,8 +31,7 @@ export class ApiService {
   }
 
   async ensureAnonymousToken(): Promise<void> {
-    if (this.token) return;
-
+    // Always fetch a fresh token — avoids stale tokens after DB rebuilds
     const res = await firstValueFrom(
       this.http.post<{ token: string }>(`${this.authBase}/anonymous/`, {})
     );
@@ -64,20 +64,20 @@ export class ApiService {
     );
   }
 
-  cluster(imageUrls: string[], boardName: string): Observable<{ job_id: string }> {
+  cluster(imageUrls: string[], boardName: string, nClusters: number): Observable<{ job_id: string }> {
     return this.http.post<{ job_id: string }>(
       `${this.base}/cluster/`,
       {
         image_urls: imageUrls,
-        n_clusters: 3,
+        n_clusters: nClusters,
         board_name: boardName,
       },
       this.authHeaders()
     );
   }
 
-  jobStatus(jobId: string): Observable<{ status: string }> {
-    return this.http.get<{ status: string }>(
+  jobStatus(jobId: string): Observable<{ status: string; result?: any }> {
+    return this.http.get<{ status: string; result?: any }>(
       `${this.base}/jobs/${jobId}/`,
       this.authHeaders()
     );

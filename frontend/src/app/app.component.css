@@ -1,3 +1,20 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.upload-screen {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1512 982' preserveAspectRatio='none'><g transform='matrix(-11.8 12.45 -15.673 -14.855 734 1046.5)'><foreignObject x='-762.99' y='-762.99' width='1526' height='1526'><div xmlns='http://www.w3.org/1999/xhtml' style='background-image: conic-gradient(from 90deg, rgb(255, 255, 255) 0%25, rgb(255, 193, 239) 5.6203%25, rgb(255, 255, 255) 100%25); opacity:1; height: 100%25; width: 100%25;'></div></foreignObject></g></svg>");
+  background-size: cover;
+  background-position: center;
+}
+
 .error-message {
   color: var(--destructive);
   text-align: center;

@@ -5,14 +5,16 @@
     (back)="onBackToUpload()"
   />
 } @else {
-  <app-upload
-    [clusterCount]="clusterCount"
-    [uploadedCount]="files.length"
-    [uploading]="uploading"
-    (filesAdded)="onFilesAdded($event)"
-    (clusterCountChange)="onClusterCountChange($event)"
-    (createBoard)="onCreateBoard()"
-  />
+  <div class="upload-screen">
+    <app-upload
+      [clusterCount]="clusterCount"
+      [uploadedCount]="images.length"
+      [uploading]="uploading"
+      (filesAdded)="onFilesAdded($event)"
+      (clusterCountChange)="onClusterCountChange($event)"
+      (createBoard)="onCreateBoard()"
+    />
+  </div>
 
   @if (error) {
     <p class="error-message">{{ error }}</p>
