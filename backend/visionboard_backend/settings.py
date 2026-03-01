@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import ssl
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -77,16 +78,22 @@ WSGI_APPLICATION = "visionboard_backend.wsgi.application"
 
 
 # Database
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "visionboard"),
-        "USER": os.environ.get("POSTGRES_USER", "visionboard"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "visionboard"),
-        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
-        "PORT": "5432",
+import dj_database_url as _dj_db_url
+
+_DATABASE_URL = os.environ.get("DATABASE_URL")
+if _DATABASE_URL:
+    DATABASES = {"default": _dj_db_url.parse(_DATABASE_URL, conn_max_age=600)}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("POSTGRES_DB", "visionboard"),
+            "USER": os.environ.get("POSTGRES_USER", "visionboard"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "visionboard"),
+            "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+            "PORT": "5432",
+        }
     }
-}
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -128,14 +135,19 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
+_broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_BROKER_URL = _broker_url
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", _broker_url)
+if _broker_url.startswith("rediss://"):
+    CELERY_BROKER_USE_SSL = {"ssl_cert_reqs": ssl.CERT_NONE}
+    CELERY_REDIS_BACKEND_USE_SSL = {"ssl_cert_reqs": ssl.CERT_NONE}
 
+_extra_cors = os.environ.get("CORS_ALLOWED_ORIGINS", "")
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
     "http://127.0.0.1:4200",
-    "http://frontend:4200"
-]
+    "http://frontend:4200",
+] + [o for o in _extra_cors.split(",") if o]
 
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")

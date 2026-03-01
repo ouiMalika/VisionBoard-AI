@@ -1,4 +1,5 @@
 import os
+import ssl as _ssl
 from celery import Celery
 import torch
 import requests
@@ -8,11 +9,17 @@ from PIL import Image
 from sklearn.cluster import KMeans
 from transformers import CLIPProcessor, CLIPModel
 
+_broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
 app = Celery(
     "worker",
-    broker=os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0"),
-    backend=os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0"),
+    broker=_broker_url,
+    backend=os.environ.get("CELERY_RESULT_BACKEND", _broker_url),
 )
+if _broker_url.startswith("rediss://"):
+    app.conf.update(
+        broker_use_ssl={"ssl_cert_reqs": _ssl.CERT_NONE},
+        redis_backend_use_ssl={"ssl_cert_reqs": _ssl.CERT_NONE},
+    )
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://backend:8000")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 

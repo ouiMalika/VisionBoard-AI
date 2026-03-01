@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  demoMode: true,
-  apiUrl: '',
+  demoMode: false,
+  apiUrl: 'https://YOUR-RENDER-APP.onrender.com/api',
 };

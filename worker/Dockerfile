@@ -9,4 +9,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["celery", "-A", "tasks", "worker", "--loglevel=info"]
+EXPOSE 7860
+
+CMD ["sh", "-c", "python -m http.server 7860 & celery -A tasks worker --loglevel=info"]
