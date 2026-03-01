@@ -6,6 +6,7 @@ import { ApiService } from './services/api.service';
 import { firstValueFrom } from 'rxjs';
 import { UploadedImage, ClusterResult } from './models/image.model';
 import { environment } from '../environments/environment';
+import { DEMO_RESULT } from './demo-data';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ export class AppComponent implements OnInit, OnDestroy {
   clusterCount = 3;
   showBoard = false;
   uploading = false;
+  isDemo = false;
   error = '';
   clusterResult: ClusterResult = {};
 
@@ -120,8 +122,22 @@ export class AppComponent implements OnInit, OnDestroy {
     }, 1500);
   }
 
+  onTryDemo(): void {
+    this.uploading = true;
+    this.error = '';
+    setTimeout(() => {
+      this.uploading = false;
+      this.isDemo = true;
+      this.clusterResult = DEMO_RESULT;
+      this.clusterCount = Object.keys(DEMO_RESULT).length;
+      this.showBoard = true;
+      this.cdr.detectChanges();
+    }, 1200);
+  }
+
   onBackToUpload(): void {
     this.showBoard = false;
+    this.isDemo = false;
     this.clusterResult = {};
     this.images = [];
     this.error = '';

@@ -36,9 +36,25 @@
 }
 
 .board-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--muted-foreground);
   margin: 0;
   font-size: 0.9375rem;
+}
+
+.demo-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.85;
 }
 
 .clusters {

@@ -12,6 +12,7 @@ import { ClusterResult } from '../../models/image.model';
 export class ClusterBoardComponent implements OnInit {
   @Input() clusterResult: ClusterResult = {};
   @Input() clusterCount = 0;
+  @Input() isDemo = false;
   @Output() back = new EventEmitter<void>();
 
   clusterEntries: { id: string; urls: string[]; tags: string[] }[] = [];

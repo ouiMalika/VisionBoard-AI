@@ -2,6 +2,7 @@
   <app-cluster-board
     [clusterResult]="clusterResult"
     [clusterCount]="clusterCount"
+    [isDemo]="isDemo"
     (back)="onBackToUpload()"
   />
 } @else {
@@ -13,6 +14,7 @@
       (filesAdded)="onFilesAdded($event)"
       (clusterCountChange)="onClusterCountChange($event)"
       (createBoard)="onCreateBoard()"
+      (tryDemo)="onTryDemo()"
     />
   </div>
 

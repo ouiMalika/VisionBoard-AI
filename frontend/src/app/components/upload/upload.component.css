@@ -16,7 +16,42 @@
 
 .subtitle {
   color: var(--muted-foreground);
-  margin: 0 0 2rem;
+  margin: 0 0 1rem;
+}
+
+.demo-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.demo-label {
+  opacity: 0.8;
+}
+
+.demo-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.2s;
+}
+
+.demo-link:hover:not(:disabled) {
+  opacity: 0.75;
+}
+
+.demo-link:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .drop-zone {
