@@ -82,7 +82,13 @@ import dj_database_url as _dj_db_url
 
 _DATABASE_URL = os.environ.get("DATABASE_URL")
 if _DATABASE_URL:
-    DATABASES = {"default": _dj_db_url.parse(_DATABASE_URL, conn_max_age=600)}
+    # Strip channel_binding=require — not a valid psycopg2 connection keyword
+    _clean_db_url = (
+        _DATABASE_URL
+        .replace("&channel_binding=require", "")
+        .replace("?channel_binding=require", "")
+    )
+    DATABASES = {"default": _dj_db_url.parse(_clean_db_url, conn_max_age=600)}
 else:
     DATABASES = {
         "default": {
