@@ -2,6 +2,13 @@
   <h1 class="title">VisionBoard AI</h1>
   <p class="subtitle">Upload images and let AI group them by visual similarity</p>
 
+  <div class="demo-banner">
+    <span class="demo-label">No images handy?</span>
+    <button class="demo-link" (click)="onTryDemo()" [disabled]="uploading">
+      See a live demo →
+    </button>
+  </div>
+
   <div
     class="drop-zone"
     [class.dragging]="isDragging"

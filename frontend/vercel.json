@@ -1,9 +1,0 @@
-{
-  "framework": null,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/frontend/browser",
-  "installCommand": "npm ci",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}

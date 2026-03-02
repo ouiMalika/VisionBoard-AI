@@ -14,4 +14,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run migrations automatically when container starts
-CMD ["sh", "-c", "python manage.py migrate && gunicorn visionboard_backend.wsgi:application --bind 0.0.0.0:8000"]
+EXPOSE 7860
+
+CMD ["sh", "-c", "python manage.py migrate && gunicorn visionboard_backend.wsgi:application --bind 0.0.0.0:7860"]

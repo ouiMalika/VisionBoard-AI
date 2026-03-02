@@ -7,7 +7,12 @@
       Back
     </button>
     <h1 class="board-title">Your Vision Board</h1>
-    <p class="board-subtitle">{{ clusterEntries.length }} groups created</p>
+    <p class="board-subtitle">
+      {{ clusterEntries.length }} groups created
+      @if (isDemo) {
+        <span class="demo-badge">Demo</span>
+      }
+    </p>
   </div>
 
   <div class="clusters">

@@ -17,6 +17,7 @@ export class UploadComponent {
   @Output() filesAdded = new EventEmitter<File[]>();
   @Output() clusterCountChange = new EventEmitter<number>();
   @Output() createBoard = new EventEmitter<void>();
+  @Output() tryDemo = new EventEmitter<void>();
 
   isDragging = false;
   previewUrls: string[] = [];
@@ -61,6 +62,10 @@ export class UploadComponent {
 
   onCreateBoard(): void {
     this.createBoard.emit();
+  }
+
+  onTryDemo(): void {
+    this.tryDemo.emit();
   }
 
   private handleFiles(files: File[]): void {
