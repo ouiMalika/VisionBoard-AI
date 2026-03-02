@@ -9,12 +9,16 @@ from PIL import Image
 from sklearn.cluster import KMeans
 from transformers import CLIPProcessor, CLIPModel
 
-_broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
-app = Celery(
-    "worker",
-    broker=_broker_url,
-    backend=os.environ.get("CELERY_RESULT_BACKEND", _broker_url),
-)
+def _ssl_url(url):
+    """Append ssl_cert_reqs=CERT_NONE to rediss:// URLs if not already present."""
+    if url.startswith("rediss://") and "ssl_cert_reqs" not in url:
+        sep = "&" if "?" in url else "?"
+        return url + sep + "ssl_cert_reqs=CERT_NONE"
+    return url
+
+_broker_url = _ssl_url(os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0"))
+_result_url = _ssl_url(os.environ.get("CELERY_RESULT_BACKEND", _broker_url))
+app = Celery("worker", broker=_broker_url, backend=_result_url)
 if _broker_url.startswith("rediss://"):
     app.conf.update(
         broker_use_ssl={"ssl_cert_reqs": _ssl.CERT_NONE},
